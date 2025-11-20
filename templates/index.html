@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Country Capital Finder</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-r from-blue-200 via-purple-200 to-pink-200 min-h-screen flex items-center justify-center">
+
+    <div class="bg-white shadow-2xl rounded-3xl p-10 max-w-xl w-full text-center">
+        <h1 class="text-4xl font-bold text-gray-800 mb-6">🌍 Country Capital Finder (via Wikipedia/Python)</h1>
+        <p class="text-gray-600 mb-8">Enter a country name and find its capital information instantly!</p>
+
+        <form id="countryForm" class="flex flex-col gap-4">
+            <input type="text" id="countryInput" placeholder="Enter country name"
+                class="border-2 border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent">
+            <button type="submit"
+                class="bg-blue-500 text-white rounded-lg p-3 font-semibold hover:bg-blue-600 transition-colors">Find Capital</button>
+        </form>
+
+        <p id="result" class="mt-6 text-xl text-gray-700"></p>
+    </div>
+
+    <script>
+        const form = document.getElementById('countryForm');
+        const input = document.getElementById('countryInput');
+        const result = document.getElementById('result');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const country = input.value.trim();
+            if (!country) return;
+
+            result.textContent = "Searching using Python backend...";
+
+            try {
+                // *** CALLING YOUR LOCAL PYTHON FLASK API ***
+                const response = await fetch('/api/capital', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ country: country })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    // Handle API errors (400, 404, 500) returned by your Python script
+                    throw new Error(data.error || "An unknown error occurred.");
+                }
+                
+                // Display the capital info returned from the Python script
+                result.textContent = data.info;
+
+            } catch (err) {
+                result.textContent = `Error: ${err.message}`;
+            }
+        });
+    </script>
+</body>
+</html>
