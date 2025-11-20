@@ -1,7 +1,7 @@
-# app.py
 from flask import Flask, render_template, request, jsonify
-import wikipedia # You would use your capital search logic here
+import wikipedia
 
+# The Flask application object must be defined at the top level
 app = Flask(__name__)
 
 # Route to serve the main HTML page
@@ -20,7 +20,8 @@ def get_capital():
         return jsonify({"error": "No country provided"}), 400
 
     try:
-        # --- Your Capital Search Logic (copied from your old py1.py) ---
+        # --- Your Capital Search Logic ---
+        # Note: Large Wikipedia pages might cause issues, but this setup works generally.
         page = wikipedia.page(country_name)
         summary = page.summary
         capital_info = "Capital not found in Wikipedia summary."
@@ -29,7 +30,7 @@ def get_capital():
             if 'capital' in sentence.lower():
                 capital_info = sentence
                 break
-        # ----------------------------------------------------------------
+        # --------------------------------
 
         return jsonify({"country": country_name, "info": capital_info})
 
@@ -38,7 +39,5 @@ def get_capital():
     except wikipedia.exceptions.PageError:
         return jsonify({"error": f"Country '{country_name}' not found on Wikipedia."}), 404
     except Exception as e:
-        return jsonify({"error": f"An error occurred: {e}"}), 500
-
-if __name__ == '__main__':
-    app.run(debug=True)
+        # A generic error handler for unexpected Wikipedia or network issues
+        return jsonify({"error": f"An unexpected error occurred during search: {e}"}), 500
