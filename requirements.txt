@@ -1,4 +1,4 @@
 # requirements.txt
 Flask
 wikipedia
-request
+requests
